@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener Microservice</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>URL Shortener Microservice</h1>
+    <form id="urlForm">
+      <input type="text" id="url_input" placeholder="Enter URL here..." required>
+      <button type="submit">POST URL</button>
+    </form>
+    <div id="result"></div>
+    <div class="examples">
+      <h3>Example Usage:</h3>
+      <p>POST [project_url]/api/shorturl - https://www.google.com</p>
+      <p>GET [project_url]/api/shorturl/3</p>
+      <p>Will redirect to: https://www.google.com</p>
+    </div>
+  </div>
+  <script>
+    const form = document.getElementById('urlForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('url_input').value;
+      
+      try {
+        const response = await fetch('/api/shorturl', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          resultDiv.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <p>Original URL: <a href="${data.original_url}" target="_blank">${data.original_url}</a></p>
+            <p>Short URL: <a href="/api/shorturl/${data.short_url}" target="_blank">${data.short_url}</a></p>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
